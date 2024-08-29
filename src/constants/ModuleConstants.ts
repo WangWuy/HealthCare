@@ -1,0 +1,20 @@
+export const MODULE = {
+    LOGIN_SCREEN: "LoginScreen",
+    REGISTER_SCREEN: "RegisterScreen",
+    DIARY_SCREEN: "HealthCare",
+    STATS_SCREEN: "StatsScreen",
+    RECIPES_SCREEN: "RecipesScreen",
+    PROFILE_SCREEN: "ProfileScreen",
+    HOME_TAB: "HomeTab",
+    FOOD_SCREEN: "FoodScreen",
+    ADD_NEW_FOOD_SCREEN: "AddNewFoodScreen",
+    CREATE_FOOD_SCREEN: "CreateFoodScreen",
+    CREATE_MEAL_SCREEN: "CreateMealScreen",
+    DETAILED_PROFILE_SCREEN: "DetailedProfileScreen",
+    TOTAL_TARGET_SCREEN: "TotalTargetScreen",
+    HEALTH_DATA_SCREEN: "HealthDataScreen",
+    MY_COLLECTION_SCREEN: "MyCollectionScreen",
+    PROCESS_IMAGE_SCREEN: "ProcessImageScreen",
+    SETTING_APP_SCREEN: "SettingAppScreen",
+
+}
