@@ -3,7 +3,7 @@ import { ApiConfig } from "./ApiConfig";
 
 const axiosClient = axios.create({
   // baseURL: ApiConfig.API_URL,
-  baseURL: 'https://937f-113-161-44-191.ngrok-free.app',
+  baseURL: 'https://ac95-113-161-44-191.ngrok-free.app',
   headers: {
     "Content-type": "application/json",
   },

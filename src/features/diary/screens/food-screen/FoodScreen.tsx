@@ -16,6 +16,7 @@ import { BaseResponse, isSuccess } from '../../../../api/BaseResponse';
 import { showToast } from '../../../../utils/ToastUtils';
 import { loadingState } from '../../../../states/States';
 import { useSetRecoilState } from 'recoil';
+import { TYPE_FOOD } from '../../../../constants/Constants';
 
 const FoodScreen = () => {
     const setLoadingState = useSetRecoilState(loadingState);
@@ -45,11 +46,9 @@ const FoodScreen = () => {
     const renderContent = () => {
         switch (activeTab) {
             case 'all':
-                return <FoodList items={dataFood} />;
+                return <FoodList items={dataFood.filter(item => item.food_type === TYPE_FOOD.ADMIN_FOOD)} />;
             case 'myFoods':
-                return <FoodList items={dataFood} />;
-            case 'myMeals':
-                return <FoodList items={dataFood} />;
+                return <FoodList items={dataFood.filter(item => item.food_type === TYPE_FOOD.USER_FOOD)} />;
             default:
                 return null;
         }
