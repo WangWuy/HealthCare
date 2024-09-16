@@ -119,7 +119,8 @@ const styles = StyleSheet.create({
     minHeight: 40,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light,
+    backgroundColor: Colors.green[400],
+    height: 60,
   },
   titleContainer: {
     flex: 1,
@@ -128,7 +129,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start', // Changed from 'center' to 'flex-start'
   },
   defaultTittleTextStyle: {
-    color: Colors.primary,
+    color: Colors.light,
     fontSize: FontSizes.md,
     fontWeight: 'bold',
     textAlign: 'left',

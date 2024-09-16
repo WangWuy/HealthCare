@@ -5,17 +5,22 @@ import HomeTabRoute from './HomeTabRoute';
 import { UserCache } from '../storages/Storages';
 
 import LoginScreen from '../features/auth/screens/GoogleLoginScreen';
-import FoodScreen from '../features/diary/screens/food-screen/FoodScreen';
-import AddNewFoodScreen from '../features/diary/screens/add-new-food-screen/AddNewFoodScreen';
-import CreateFoodScreen from '../features/diary/screens/create-food-screen/CreateFoodScreen';
-import CreateMealScreen from '../features/diary/screens/create-meal-screen/CreateMealScreen';
+
+// Profile
 import DetailedProfileScreen from '../features/profile/screens/detailed-profile/DetailedProfileScreen';
 import TotalTargetScreen from '../features/profile/screens/setting-target/SettingTargetScreen';
 import HealthDataScreen from '../features/profile/screens/health-data/HealthDataScreen';
 import MyCollectionScreen from '../features/profile/screens/my-collection/MyCollectionScreen';
 import ProcessImageScreen from '../features/profile/screens/process-image/ProcessImageScreen';
 import SettingAppScreen from '../features/profile/screens/setting-app/SettingAppScreen';
+
+// Diary
 import DiaryScreen from '../features/diary/screens/DiaryScreen';
+import DetailFoodScreen from '../features/diary/screens/detail-food-screen/DetailFoodScreen';
+import FoodScreen from '../features/diary/screens/food-screen/FoodScreen';
+import AddNewFoodScreen from '../features/diary/screens/add-new-food-screen/AddNewFoodScreen';
+import CreateFoodScreen from '../features/diary/screens/create-food-screen/CreateFoodScreen';
+import CreateMealScreen from '../features/diary/screens/create-meal-screen/CreateMealScreen';
 
 const Stack = createStackNavigator();
 
@@ -46,6 +51,7 @@ const AppRoute: React.FC = () => {
       <Stack.Screen name={MODULE.MY_COLLECTION_SCREEN} component={MyCollectionScreen} />
       <Stack.Screen name={MODULE.PROCESS_IMAGE_SCREEN} component={ProcessImageScreen} />
       <Stack.Screen name={MODULE.SETTING_APP_SCREEN} component={SettingAppScreen} />
+      <Stack.Screen name={MODULE.DETAIL_FOOD_SCREEN} component={DetailFoodScreen} />
 
     </Stack.Navigator>
   );

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+
 import BaseContainer from '../../../../components/BaseContainer';
 import { Colors } from '../../../../assets/colors/Colors';
 import { FontSizes } from '../../../../assets/dimens/FontsSize';
-import { IconsSize } from '../../../../assets/dimens/IconsSize';
 
 import IconCaretDown from '../../../../assets/icons/ic-caret-down.svg';
 import IconApple from '../../../../assets/icons/ic-apple.svg';
@@ -17,12 +17,21 @@ import { showToast } from '../../../../utils/ToastUtils';
 import { loadingState } from '../../../../states/States';
 import { useSetRecoilState } from 'recoil';
 import { TYPE_FOOD } from '../../../../constants/Constants';
+import CustomDropdown from '../../../../components/CustomDropdown';
+
+interface SelectedData {
+    label: string;
+    value: string;
+}
 
 const FoodScreen = () => {
     const setLoadingState = useSetRecoilState(loadingState);
     const [keySearch, setKeySearch] = useState('');
     const [activeTab, setActiveTab] = useState('all');
     const [dataFood, setDataFood] = useState<FoodItemResponse[]>([]);
+    const [valueOne, setValueOne] = useState(null);
+    const [valueTwo, setValueTwo] = useState(null);
+    const [selectedData, setSelectedData] = useState<SelectedData>({ label: 'Bữa sáng', value: '1' });
 
     useEffect(() => {
         handleGetFoodsApi();
@@ -32,27 +41,44 @@ const FoodScreen = () => {
         setKeySearch(newValue.trim());
     };
 
+    const dropdownOneData = [
+        { label: 'Bữa sáng', value: '1' },
+        { label: 'Bữa trưa', value: '2' },
+        { label: 'Bữa tối', value: '3' },
+    ];
+
+    const dropdownTwoData = [
+        { label: 'Apple', value: 'apple' },
+        { label: 'Banana', value: 'banana' },
+        { label: 'Cherry', value: 'cherry' },
+    ];
+
+    const handleSelectOne = (item: any) => {
+        setSelectedData(item);
+        console.log('Selected from dropdown one:', item);
+    };
+
+    const handleSelectTwo = (item: any) => {
+        setValueTwo(item.value);
+        console.log('Selected from dropdown two:', item);
+    };
+
     const renderHeader = () => (
         <View style={styles.headerRightContent}>
-            <TouchableOpacity onPress={() => { }}>
-                <IconCaretDown width={IconsSize.md} height={IconsSize.md} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => { }}>
-                <IconApple width={IconsSize.md} height={IconsSize.md} />
-            </TouchableOpacity>
+            <CustomDropdown
+                data={dropdownOneData}
+                onChange={handleSelectOne}
+                IconComponent={IconCaretDown as any}
+                value={selectedData.value}
+            />
+            <CustomDropdown
+                data={dropdownTwoData}
+                onChange={handleSelectTwo}
+                IconComponent={IconApple as any}
+                value={selectedData.value}
+            />
         </View>
     );
-
-    const renderContent = () => {
-        switch (activeTab) {
-            case 'all':
-                return <FoodList items={dataFood.filter(item => item.food_type === TYPE_FOOD.ADMIN_FOOD)} />;
-            case 'myFoods':
-                return <FoodList items={dataFood.filter(item => item.food_type === TYPE_FOOD.USER_FOOD)} />;
-            default:
-                return null;
-        }
-    };
 
     const handleGetFoodsApi = () => {
         getFoodsDataApi()
@@ -68,18 +94,35 @@ const FoodScreen = () => {
             });
     };
 
-    const FoodList: React.FC<{ items: FoodItemResponse[] }> = ({ items }) => (
-        <FlatList
-            data={items}
-            renderItem={({ item }) => <FoodItem item={item} />}
-            keyExtractor={item => item.id.toString()}
-        />
-    );
+    const renderContent = () => {
+        switch (activeTab) {
+            case 'all':
+                return <FoodList items={dataFood.filter(item => item.food_type === TYPE_FOOD.ADMIN_FOOD)} />;
+            case 'myFoods':
+                return <FoodList items={dataFood.filter(item => item.food_type === TYPE_FOOD.USER_FOOD)} />;
+            default:
+                return null;
+        }
+    };
+
+    const FoodList: React.FC<{ items: FoodItemResponse[] }> = ({ items }) => {
+        return (
+            <FlatList
+                data={items}
+                renderItem={({ item }) => (
+                    <FoodItem
+                        item={item}
+                    />
+                )}
+                keyExtractor={item => item.id.toString()}
+            />
+        );
+    }
 
     return (
         <BaseContainer
             isShowHeader={true}
-            headerTittle="Bữa sáng"
+            headerTittle={selectedData.label}
             isShowLeftIcon={true}
             headerTittleStyle={styles.headerStyle}
             headerTittleTextStyle={styles.headerTitleText}
@@ -145,6 +188,25 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'flex-start',
+    },
+    dropdownContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 10,
+    },
+    dropdown: {
+        height: 50,
+        width: 150,
+        backgroundColor: '#efefef',
+        borderRadius: 8,
+        paddingHorizontal: 8,
+    },
+    placeholderStyle: {
+        fontSize: 16,
+        color: '#a9a9a9',
+    },
+    selectedTextStyle: {
+        fontSize: 16,
     },
 
     // Custom TabBar

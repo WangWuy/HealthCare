@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ViewStyle, StyleProp, TextInput, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
+import { useSetRecoilState } from 'recoil';
 
 import BaseContainer from '../../../../components/BaseContainer';
 import { Colors } from '../../../../assets/colors/Colors';
@@ -8,46 +9,113 @@ import { Colors } from '../../../../assets/colors/Colors';
 // Import Icon
 import IconAdd from '../../../../assets/icons/ic-add.svg';
 import IconMinus from '../../../../assets/icons/ic-minus.svg';
+
 import { styles } from '../setting-target/SettingTargetScreen.style';
+import { GOAL_TYPE, WEIGHT_CHANGE_RATE } from '../../../../constants/Constants';
+import { showToast } from '../../../../utils/ToastUtils';
+import { BaseResponse, isSuccess } from '../../../../api/BaseResponse';
+import { getUserGoalsDetailApi, postCreateUserGoalsApi } from '../../api/SettingTargetApi';
+import { loadingState } from '../../../../states/States';
+import { CreateUserGoalsData } from './../../api/SettingTargetApi';
 
 interface NumberInputProps {
     value: string;
-    onChangeText: (text: string) => void;
+    onChangeText: (value: string) => void;
     onIncrement: () => void;
     onDecrement: () => void;
     label: string;
     subLabel: string;
-    style?: StyleProp<ViewStyle>;
 }
 
 const SettingTargetScreen = () => {
-    const [goal, setGoal] = useState('');
-    const [gender, setGender] = useState('Nam');
-    const [age, setAge] = useState('0');
-    const [height, setHeight] = useState('0');
-    const [weight, setWeight] = useState('0');
-    const [intensity, setIntensity] = useState(5);
-    const [targetWeight, setTargetWeight] = useState('0');
-    const [weightChangeRate, setWeightChangeRate] = useState('');
+    const [goalType, setGoalType] = useState<string>('0');
+    const [gender, setGender] = useState<string>('male');
+    const [age, setAge] = useState<string>('0');
+    const [height, setHeight] = useState<string>('0');
+    const [weight, setWeight] = useState<string>('0');
+    const [targetWeight, setTargetWeight] = useState<string>('0');
+    const [activityLevel, setActivityLevel] = useState<number>(1);
+    const [rate, setRate] = useState<string>('0');
+
+    const setLoadingState = useSetRecoilState(loadingState);
 
     const goals = [
-        { label: 'Giảm mỡ', value: 'lose_fat' },
-        { label: 'Tăng cân', value: 'gain_weight' },
-        { label: 'Giữ cân', value: 'maintain' },
+        { label: 'Giảm mỡ', value: GOAL_TYPE.LOSE_WEIGHT.toString() },
+        { label: 'Tăng cân', value: GOAL_TYPE.GAIN_WEIGHT.toString() },
+        { label: 'Giữ cân', value: GOAL_TYPE.MAINTAIN_WEIGHT.toString() },
     ];
 
     const weightChangeRates = [
-        { label: 'Chậm', value: 'slow' },
-        { label: 'Vừa phải', value: 'moderate' },
-        { label: 'Nhanh', value: 'fast' },
+        { label: 'Chậm', value: WEIGHT_CHANGE_RATE.SLOW.toString() },
+        { label: 'Vừa phải', value: WEIGHT_CHANGE_RATE.MEDIUM.toString() },
+        { label: 'Nhanh', value: WEIGHT_CHANGE_RATE.FAST.toString() },
     ];
 
-    const handleIncrement = (setter: React.Dispatch<React.SetStateAction<string>>, value: string) => {
+    useEffect(() => {
+        handleGetUserGoalDetailApi();
+    }, []);
+
+    const handleIncrement = (setter: React.Dispatch<React.SetStateAction<string>>) => {
         setter((prevValue) => (parseInt(prevValue) + 1).toString());
     };
 
-    const handleDecrement = (setter: React.Dispatch<React.SetStateAction<string>>, value: string) => {
+    const handleDecrement = (setter: React.Dispatch<React.SetStateAction<string>>) => {
         setter((prevValue) => Math.max(0, parseInt(prevValue) - 1).toString());
+    };
+
+    const handleCreateUserGoalApi = async () => {
+        const dataCreate: CreateUserGoalsData = {
+            goal_type: parseInt(goalType),
+            gender,
+            age: parseInt(age),
+            height: parseInt(height),
+            weight: parseFloat(weight),
+            target_weight: parseFloat(targetWeight),
+            rate: parseFloat(rate),
+            activity_level: activityLevel,
+        };
+        setLoadingState(true);
+
+        try {
+            const res = await postCreateUserGoalsApi(dataCreate);
+            if (isSuccess(res)) {
+                showToast('Thiết lập mục tiêu thành công', 3000, 'success');
+            } else {
+                showToast('Đã có lỗi xảy ra', 3000, 'error');
+            }
+        } catch (error) {
+            console.error(error);
+            showToast('Đã có lỗi xảy ra, vui lòng thử lại sau', 3000, 'error');
+        } finally {
+            setLoadingState(false);
+            showToast('Đã có lỗi xảy ra, vui lòng thử lại sau', 3000, 'error');
+        }
+    };
+
+    const handleGetUserGoalDetailApi = async () => {
+        setLoadingState(true);
+        try {
+            const res = await getUserGoalsDetailApi();
+            if (isSuccess(res)) {
+                // Update state with the received data
+                setGoalType(res.data.goal_type.toString());
+                setGender(res.data.gender);
+                setAge(res.data.age.toString());
+                setHeight(res.data.height.toString());
+                setWeight(res.data.weight.toString());
+                setTargetWeight(res.data.target_weight.toString());
+                setActivityLevel(res.data.activity_level);
+                setRate(res.data.rate);
+                showToast('Đã lấy thông tin mục tiêu thành công', 3000, 'success');
+            } else {
+                showToast('Đã có lỗi xảy ra', 3000, 'error');
+            }
+        } catch (error) {
+            console.error(error);
+            showToast('Đã có lỗi xảy ra, vui lòng thử lại sau', 3000, 'error');
+        } finally {
+            setLoadingState(false);
+        }
     };
 
     const NumberInput: React.FC<NumberInputProps> = ({
@@ -57,25 +125,32 @@ const SettingTargetScreen = () => {
         onDecrement,
         label,
         subLabel,
-    }) => (
-        <View style={styles.numberInputWrapper}>
-            <Text style={styles.labelNumberInput}>{label} {subLabel}</Text>
-            <View style={styles.numberInputContainer}>
-                <TouchableOpacity onPress={onDecrement} style={styles.button}>
-                    <IconMinus style={styles.iconStyle} />
-                </TouchableOpacity>
-                <TextInput
-                    style={styles.numberInput}
-                    value={value}
-                    onChangeText={onChangeText}
-                    keyboardType="numeric"
-                />
-                <TouchableOpacity onPress={onIncrement} style={styles.button}>
-                    <IconAdd style={styles.iconStyle} />
-                </TouchableOpacity>
+    }) => {
+        const handleChangeText = (newValue: string) => {
+            const numericValue = newValue.replace(/[^0-9]/g, '');
+            onChangeText(numericValue);
+        };
+        return (
+            <View style={styles.numberInputWrapper}>
+                <Text style={styles.labelNumberInput}>{label} {subLabel}</Text>
+                <View style={styles.numberInputContainer}>
+                    <TouchableOpacity onPress={onDecrement} style={styles.button}>
+                        <IconMinus style={styles.iconStyle} />
+                    </TouchableOpacity>
+                    <TextInput
+                        style={styles.numberInput}
+                        value={value}
+                        onChangeText={handleChangeText}
+                        keyboardType="numeric"
+                    />
+                    <TouchableOpacity onPress={onIncrement} style={styles.button}>
+                        <IconAdd style={styles.iconStyle} />
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
-    );
+        );
+    };
+
 
     return (
         <BaseContainer
@@ -92,6 +167,7 @@ const SettingTargetScreen = () => {
                         <View style={[styles.flex1, styles.paddingRight]}>
                             <Text style={styles.label}>MỤC TIÊU</Text>
                             <Dropdown
+                                key={goalType}
                                 style={styles.dropdown}
                                 placeholderStyle={styles.selectedItemText}
                                 selectedTextStyle={styles.selectedItemText}
@@ -99,24 +175,24 @@ const SettingTargetScreen = () => {
                                 labelField="label"
                                 valueField="value"
                                 placeholder="Chọn mục tiêu"
-                                value={goal}
-                                onChange={item => setGoal(item.value)}
+                                value={goalType}
+                                onChange={item => setGoalType(item.value)}
                             />
                         </View>
                         <View style={styles.flex1}>
                             <Text style={styles.label}>GIỚI TÍNH</Text>
                             <View style={styles.genderContainer}>
                                 <TouchableOpacity
-                                    style={[styles.genderButton, styles.maleButton, gender === 'Nam' && styles.selectedGender]}
-                                    onPress={() => setGender('Nam')}
+                                    style={[styles.genderButton, styles.maleButton, gender === 'male' && styles.selectedGender]}
+                                    onPress={() => setGender('male')}
                                 >
-                                    <Text style={gender === 'Nam' && styles.selectedItemText}>Nam</Text>
+                                    <Text style={gender === 'male' && styles.selectedItemText}>Nam</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
-                                    style={[styles.genderButton, styles.femaleButton, gender === 'Nữ' && styles.selectedGender]}
-                                    onPress={() => setGender('Nữ')}
+                                    style={[styles.genderButton, styles.femaleButton, gender === 'female' && styles.selectedGender]}
+                                    onPress={() => setGender('female')}
                                 >
-                                    <Text style={gender === 'Nữ' && styles.selectedItemText}>Nữ</Text>
+                                    <Text style={gender === 'female' && styles.selectedItemText}>Nữ</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -128,8 +204,8 @@ const SettingTargetScreen = () => {
                             subLabel="(năm)"
                             value={age}
                             onChangeText={setAge}
-                            onIncrement={() => handleIncrement(setAge, age)}
-                            onDecrement={() => handleDecrement(setAge, age)}
+                            onIncrement={() => handleIncrement(setAge)}
+                            onDecrement={() => handleDecrement(setAge)}
                         />
                     </View>
 
@@ -139,8 +215,8 @@ const SettingTargetScreen = () => {
                             subLabel="(cm)"
                             value={height}
                             onChangeText={setHeight}
-                            onIncrement={() => handleIncrement(setHeight, height)}
-                            onDecrement={() => handleDecrement(setHeight, height)}
+                            onIncrement={() => handleIncrement(setHeight)}
+                            onDecrement={() => handleDecrement(setHeight)}
                         />
                     </View>
 
@@ -150,8 +226,8 @@ const SettingTargetScreen = () => {
                             subLabel="(kg)"
                             value={weight}
                             onChangeText={setWeight}
-                            onIncrement={() => handleIncrement(setWeight, weight)}
-                            onDecrement={() => handleDecrement(setWeight, weight)}
+                            onIncrement={() => handleIncrement(setWeight)}
+                            onDecrement={() => handleDecrement(setWeight)}
                         />
                     </View>
 
@@ -161,10 +237,10 @@ const SettingTargetScreen = () => {
                             {[1, 2, 3, 4, 5].map((level) => (
                                 <TouchableOpacity
                                     key={level}
-                                    style={[styles.intensityButton, intensity === level && styles.selectedIntensity]}
-                                    onPress={() => setIntensity(level)}
+                                    style={[styles.intensityButton, activityLevel === level && styles.selectedIntensity]}
+                                    onPress={() => setActivityLevel(level)}
                                 >
-                                    <Text style={intensity === level && styles.selectedItemText}>{level}</Text>
+                                    <Text style={activityLevel === level && styles.selectedItemText}>{level}</Text>
                                 </TouchableOpacity>
                             ))}
                         </View>
@@ -197,13 +273,14 @@ const SettingTargetScreen = () => {
                                 labelField="label"
                                 valueField="value"
                                 placeholder="Chọn tốc độ"
-                                value={weightChangeRate}
-                                onChange={item => setWeightChangeRate(item.value)}
+                                value={(rate).toString()}
+                                onChange={item => setRate(item.value)}
                             />
                         </View>
                     </View>
                     <View style={styles.row}>
-                        <TouchableOpacity style={styles.calculateButton}>
+                        <TouchableOpacity style={styles.calculateButton}
+                            onPress={handleCreateUserGoalApi}>
                             <Text style={styles.calculateButtonText}>TÍNH TDEE NGAY</Text>
                         </TouchableOpacity>
                     </View>
@@ -212,5 +289,4 @@ const SettingTargetScreen = () => {
         </BaseContainer>
     );
 }
-
 export default SettingTargetScreen;

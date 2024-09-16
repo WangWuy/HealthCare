@@ -16,5 +16,6 @@ export const MODULE = {
     MY_COLLECTION_SCREEN: "MyCollectionScreen",
     PROCESS_IMAGE_SCREEN: "ProcessImageScreen",
     SETTING_APP_SCREEN: "SettingAppScreen",
+    DETAIL_FOOD_SCREEN: "DetailFoodScreen",
 
 }

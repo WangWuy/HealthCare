@@ -19,6 +19,12 @@ export const ApiProfile = {
   API_EDIT_PROFILE() {
     return `api/users/update`;
   },
+  API_CREATE_USER_GOALS(id: number) {
+    return `api/user-goals/create/${id}`;
+  },
+  API_GET_USER_GOALS(id: number) {
+    return `api/user-goals/detail/${id}`;
+  },
 };
 
 export const ApiFood = {
@@ -26,7 +32,7 @@ export const ApiFood = {
   get API_GET_FOOD() {
     return `api/foods`;
   },
-  get API_GET_DETAIL_FOOD() {
-    return `/foods/detail/{id}`;
+  API_GET_DETAIL_FOOD(id: number) {
+    return `/foods/detail/${id}`;
   },
 };
